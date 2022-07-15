@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   StatusBar,
@@ -8,54 +8,68 @@ import {
   Dimensions,
   TextInput,
   TouchableOpacity,
-  
+  ScrollView,
+  Alert,
+
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import BannerImage from "../../../assets/ShelbySmoking2.png";
+import CustomInput from "../../components/CustomInput";
+import { AuthContext } from "../../utils/auth";
+import { useForm, Contoller } from "react-hook-form";
 
 const width = Image.resolveAssetSource(BannerImage).width;
 const height = Image.resolveAssetSource(BannerImage).height;
 const screenWidth = Dimensions.get("window").width;
 const bannerHeight = (screenWidth / width) * height;
 
-export default function SignUpScreen() {
+const SignUpScreen = ({ navigation }) => {
+  const { isLoading, register } = useContext(AuthContext);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSignUpPressed = (data) => {
+    console.log(data.email, data.username, data.password);
+    //console.log(data.email);
+    register(data.email, data.username, data.password);
+
+  };
+
   return (
     <>
       <StatusBar></StatusBar>
       <Image source={BannerImage} style={styles.banner}></Image>
-      <SafeAreaView style={styles.container}>
+      <ScrollView>
         <View style={styles.content}>
-          <TextInput
-            style={[styles.input, styles.inputText]}
-            placeholder="Имя пользователя"
-            placeholderTextColor="#cdcdcf"
+          <CustomInput
+            name="email"
+            placeholder="Email"
+            control={control}
           />
-          <View style={styles.horisontalContainer}>
-            <TextInput
-              style={[styles.input, styles.inputText, styles.inputName]}
-              placeholder="Имя"
-              placeholderTextColor="#cdcdcf"
-            />
-            <TextInput
-              style={[styles.input, styles.inputText, styles.inputName]}
-              placeholder="Фамилия"
-              placeholderTextColor="#cdcdcf"
-            />
-          </View>
-          <TextInput
-            style={[styles.input, styles.inputText]}
-            placeholder="Адрес электронной почты"
-            placeholderTextColor="#cdcdcf"
+          <CustomInput
+            name="username"
+            placeholder="Username"
+            control={control}
           />
-          
+
+          <CustomInput
+            name="password"
+            placeholder="Password"
+            control={control}
+          />
+
         </View>
-        <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Создать учетную запись</Text>
-          </TouchableOpacity>
-      </SafeAreaView>
+        <TouchableOpacity style={styles.button} onPress={(handleSubmit(onSignUpPressed))}>
+          <Text style={styles.buttonText}>Создать учетную запись</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </>
-  );
+  ); 
 }
 
 const styles = StyleSheet.create({
@@ -75,7 +89,7 @@ const styles = StyleSheet.create({
   content: {
     padding: 22,
     flexShrink: 1,
-    
+
   },
   input: {
     borderWidth: 1,
@@ -141,3 +155,5 @@ const styles = StyleSheet.create({
     color: "#1077f7",
   },
 });
+
+export default SignUpScreen;

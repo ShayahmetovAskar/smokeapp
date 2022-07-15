@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import {
   TextStyle,
   StyleSheet,
@@ -8,26 +8,46 @@ import {
   TouchableOpacity,
   TextInput,
   Dimensions,
+  ScrollView,
+  KeyboardAvoidingView
 } from "react-native";
+import { useForm, Controller } from "react-hook-form";
 import { StatusBar } from "expo-status-bar";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Image } from "react-native";
 import BannerImage from "../../../assets/ShelbySmoking.png";
 import { useNavigation } from "@react-navigation/native";
+import CustomInput from '../../components/CustomInput';
+import Spinner from 'react-native-loading-spinner-overlay';
+import { AuthContext } from '../../utils/auth';
 
 const width = Image.resolveAssetSource(BannerImage).width;
 const height = Image.resolveAssetSource(BannerImage).height;
 const screenWidth = Dimensions.get("window").width;
-const bannerHeight = (screenWidth / width) * height; // Image ratio is 75x46
+const bannerHeight = (screenWidth / width) * height;
 
-export default function SignInScreen() {
-  const navigation = useNavigation();
-  const onSignInPressed = () => {
+const SignInScreen = ({ navigation }) => {
+
+  const { isLoading, login } = useContext(AuthContext);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSignInPressed1 = () => {
     navigation.navigate("Home");
     /*navigation.reset({
         index: 0,
         routes: [{name: 'Home'}],
       });*/
+  };
+  const onSignInPressed = (data) => {
+
+    //login('username', 'password123123');
+    login(data.username, data.password);
+
   };
   const onSignUpPressed = () => {
     navigation.navigate("SignUp");
@@ -35,38 +55,49 @@ export default function SignInScreen() {
   return (
     <>
       <StatusBar style="light"></StatusBar>
-      <Image source={BannerImage} style={styles.banner}></Image>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.content}>
-          <TextInput
-            style={[styles.input, styles.inputUsername]}
-            placeholder="Имя пользователя"
-            placeholderTextColor="#cdcdcf"
-          />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}>
 
-          <TextInput
-            style={[styles.input, styles.inputPassword]}
-            secureTextEntry={true}
-            placeholder="Пароль"
-            placeholderTextColor="#cdcdcf"
-          />
+        <ScrollView>
+          <Image source={BannerImage} style={styles.banner}></Image>
+          <View style={styles.container}>
+            <View style={styles.content}>
 
-          <TouchableOpacity style={styles.link}>
-            <Text style={styles.linkText}>Забыли пароль?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={onSignInPressed}>
-            <Text style={styles.buttonText}>Вход</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.footer}>
-          <TouchableOpacity style={[styles.link]} onPress={onSignUpPressed}>
-            <Text style={[styles.linkText]}>Зарегистрируйтесь!</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+              <CustomInput
+                name="username"
+                placeholder="Username"
+                control={control}
+
+              />
+
+              <CustomInput
+                name="password"
+                placeholder="Password"
+                secureTextEntry
+                control={control}
+
+              />
+
+              <TouchableOpacity style={styles.link}>
+                <Text style={styles.linkText}>Забыли пароль?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={(onSignInPressed)}>
+                <Text style={styles.buttonText}>{'Войти'}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.footer}>
+              <TouchableOpacity style={[styles.link]} onPress={onSignUpPressed}>
+                <Text style={[styles.linkText]}>Зарегистрируйтесь!</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   banner: {
@@ -154,3 +185,5 @@ const styles = StyleSheet.create({
     color: "#1077f7",
   },
 });
+
+export default SignInScreen;
